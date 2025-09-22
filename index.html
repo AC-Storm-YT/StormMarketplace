@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>My Apps — Dark Marketplace</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bcryptjs/2.4.3/bcrypt.min.js"></script>
 <style>
 :root{
   --bg:#0b0f14;
@@ -195,6 +196,12 @@ footer {
   background: rgba(255, 215, 0, 0.15);
   color: #ff0;
 }
+
+.pill.price-private {
+  background: rgba(211, 32, 53, 0.15);
+  color: rgb(211, 32, 53);
+}
+
 </style>
 </head>
 <body>
@@ -277,7 +284,7 @@ footer {
       {
         id: 'quester-launcher',
         name: 'Quester Launcher',
-        short: 'A better launcher for your games.',
+        short: 'A better launcher for your games',
         description: 'Quester Launcher was designed to keep your desktop organized, eliminating the clutter of scattered shortcuts.',
         thumb: 'https://raw.githubusercontent.com/AC-Storm-YT/QuesterLauncher/refs/heads/main/icon.svg',
         versionUrl: 'https://raw.githubusercontent.com/AC-Storm-YT/QuesterLauncher/refs/heads/main/version.txt',
@@ -285,7 +292,19 @@ footer {
         price: 'FREE',
         download: 'https://www.dropbox.com/scl/fi/e6emc8zbfgdjd96gpsnmd/Quester_Launcher.zip?rlkey=hb1a6v4mdtp3dqto17d0tgsb2&st=qu53sk2c&dl=1',
         languages: ['English', 'Français'] 
-      }
+      },
+      {
+        id: 'windows-iso',
+        name: 'Windows ISO',
+        short: 'Download Windows ISO effortlessly',
+        description: 'Windows ISO lets you quickly download official Windows ISO files without searching the web.',
+        thumb: 'https://raw.githubusercontent.com/AC-Storm-YT/Windows_iso/refs/heads/main/icon.svg',
+        versionUrl: 'https://raw.githubusercontent.com/AC-Storm-YT/Windows_iso/refs/heads/main/version.txt',
+        size: '506 KB',
+        price: 'Private',
+        download: 'aHR0cHM6Ly93d3cuZHJvcGJveC5jb20vc2NsL2ZpL2wyZ3B5ZXR6dmlkdDZta28wa3FtZi9XaW5kb3dzX0lTTy56aXA/cmxrZXk9NGNoOW83a2xwdGd6aHNkczhtdnZjMnZwaCZzdD0wcDk0OGZpYSZkbD0x',
+        languages: ['English'] 
+      },
     ];
 
     const appsGrid = document.getElementById('appsGrid');
@@ -333,100 +352,133 @@ footer {
       return card;
     }
 
-function showModal(app){
-  modalContent.innerHTML = '';
+    function showModal(app){
+      modalContent.innerHTML = '';
 
-  const closeBtn = document.createElement('button');
-  closeBtn.className = 'closeBtn';
-  closeBtn.innerHTML = '&times;';
-  closeBtn.onclick = closeModal;
-  modalContent.appendChild(closeBtn);
+      const closeBtn = document.createElement('button');
+      closeBtn.className = 'closeBtn';
+      closeBtn.innerHTML = '&times;';
+      closeBtn.onclick = closeModal;
+      modalContent.appendChild(closeBtn);
 
-  const container = document.createElement('div');
-  container.style.display = 'flex';
-  container.style.flexDirection = 'column';
-  container.style.gap = '16px';
+      const container = document.createElement('div');
+      container.style.display = 'flex';
+      container.style.flexDirection = 'column';
+      container.style.gap = '16px';
 
-  // Image at top
-  const big = document.createElement('div');
-  big.className = 'big-thumb';
-  const img = document.createElement('img');
-  img.src = app.thumb;
-  img.alt = app.name;
-  big.appendChild(img);
-  big.style.margin = '0 auto';
-  container.appendChild(big);
+      // Image at top
+      const big = document.createElement('div');
+      big.className = 'big-thumb';
+      const img = document.createElement('img');
+      img.src = app.thumb;
+      img.alt = app.name;
+      big.appendChild(img);
+      big.style.margin = '0 auto';
+      container.appendChild(big);
 
-  // Text info
-  const textWrapper = document.createElement('div');
-  textWrapper.style.display = 'flex';
-  textWrapper.style.flexDirection = 'column';
-  textWrapper.style.gap = '8px';
+      // Text info
+      const textWrapper = document.createElement('div');
+      textWrapper.style.display = 'flex';
+      textWrapper.style.flexDirection = 'column';
+      textWrapper.style.gap = '8px';
 
-  const title = document.createElement('h2');
-  title.textContent = app.name;
-  textWrapper.appendChild(title);
+      const title = document.createElement('h2');
+      title.textContent = app.name;
+      textWrapper.appendChild(title);
 
-  const desc = document.createElement('p');
-  desc.textContent = app.description;
-  textWrapper.appendChild(desc);
+      const desc = document.createElement('p');
+      desc.textContent = app.description;
+      textWrapper.appendChild(desc);
 
-  const info = document.createElement('div');
-  info.style.display = 'flex';
-  info.style.flexWrap = 'wrap';
-  info.style.gap = '6px';
+      const info = document.createElement('div');
+      info.style.display = 'flex';
+      info.style.flexWrap = 'wrap';
+      info.style.gap = '6px';
 
-  if(app.version){
-    info.appendChild(makePill('v'+app.version));
-  } else if(app.versionUrl){
-    const pill = makePill('v...');
-    fetch(app.versionUrl).then(r=>r.text()).then(txt=>{
-      pill.textContent = 'v' + txt.trim();
-    }).catch(()=>{pill.textContent='v?'});
-    info.appendChild(pill);
+      if(app.version){
+        info.appendChild(makePill('v'+app.version));
+      } else if(app.versionUrl){
+        const pill = makePill('v...');
+        fetch(app.versionUrl).then(r=>r.text()).then(txt=>{
+          pill.textContent = 'v' + txt.trim();
+        }).catch(()=>{pill.textContent='v?'});
+        info.appendChild(pill);
+      }
+
+      if(app.size){
+        info.appendChild(makePill(app.size));
+      }
+
+      const price = app.price ? app.price : 'PRIVATE';
+      const pricePill = makePill(price);
+
+      // Apply classes based on value
+      if (price.toUpperCase() === 'FREE') {
+        pricePill.classList.add('price-free');
+      } else if (price.toUpperCase() === 'PRIVATE') {
+        pricePill.classList.add('price-private');
+      } else {
+        pricePill.classList.add('price-paid');
+      }
+
+      info.appendChild(pricePill);
+
+      textWrapper.appendChild(info);
+      container.appendChild(textWrapper);
+
+      // Bottom row: languages left, download right
+      const bottomRow = document.createElement('div');
+      bottomRow.style.display = 'flex';
+      bottomRow.style.justifyContent = 'space-between';
+      bottomRow.style.alignItems = 'center';
+
+      // Languages text (bottom-left)
+      const langText = document.createElement('span');
+      langText.style.fontSize = '13px';
+      langText.style.color = 'var(--muted)';
+      langText.textContent = app.languages ? `Languages: ${app.languages.join(', ')}` : '';
+      bottomRow.appendChild(langText);
+
+// Download button (bottom-right)
+const btn = document.createElement('button');
+btn.className = 'btn';
+btn.textContent = 'Download';
+btn.onclick = async () => {
+  // Check if app is private
+  if (price && price.toUpperCase() === 'PRIVATE') {
+    const userCode = prompt('Enter the download code:');
+    if (!userCode) return; // cancelled or empty
+
+    // Hash the entered code using SHA-256 (browser-native crypto)
+    const encoder = new TextEncoder();
+    const data = encoder.encode(userCode.trim());
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+    // Compare with the stored hash (precomputed SHA-256 hash of "StormKey2025")
+    const correctHash = '0cafa1367e860ac2c1277972b8e9bbf47096a32caefcffc00b69bcc351a5de18';
+
+    if (hashHex === correctHash) {
+      // Decode the Base64 download link before opening
+      const realLink = atob(app.download);
+      window.open(realLink, '_blank');
+    } else {
+      alert('Incorrect code.');
+    }
+  } else {
+    // Free or paid apps open directly
+    window.open(app.download, '_blank');
   }
-
-  if(app.size){
-    info.appendChild(makePill(app.size));
-  }
-
-  if(app.price){
-    const pricePill = makePill(app.price);
-    pricePill.classList.add(app.price.toUpperCase() === 'FREE' ? 'price-free' : 'price-paid');
-    info.appendChild(pricePill);
-  }
-
-  textWrapper.appendChild(info);
-  container.appendChild(textWrapper);
-
-  // Bottom row: languages left, download right
-  const bottomRow = document.createElement('div');
-  bottomRow.style.display = 'flex';
-  bottomRow.style.justifyContent = 'space-between';
-  bottomRow.style.alignItems = 'center';
-
-  // Languages text (bottom-left)
-  const langText = document.createElement('span');
-  langText.style.fontSize = '13px';
-  langText.style.color = 'var(--muted)';
-  langText.textContent = app.languages ? `Languages: ${app.languages.join(', ')}` : '';
-  bottomRow.appendChild(langText);
-
-  // Download button (bottom-right)
-  const btn = document.createElement('button');
-  btn.className = 'btn';
-  btn.textContent = 'Download';
-  btn.onclick = ()=>window.open(app.download,'_blank');
-  bottomRow.appendChild(btn);
-
-  container.appendChild(bottomRow);
-  modalContent.appendChild(container);
-
-  modalOverlay.style.display = 'flex';
-}
+};
+bottomRow.appendChild(btn);
 
 
+      container.appendChild(bottomRow);
+      modalContent.appendChild(container);
 
+      modalOverlay.style.display = 'flex';
+    }
 
     function closeModal(){
       modalOverlay.style.display = 'none';
